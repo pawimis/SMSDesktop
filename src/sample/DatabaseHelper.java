@@ -27,8 +27,7 @@ class DatabaseHelper {
             stat = connection.createStatement();
             String sqlTable = "CREATE TABLE IF NOT EXISTS " + table
                     + "( ID INTEGER PRIMARY KEY AUTOINCREMENT,"
-                    + " DATE      CHAR(20)    NOT NULL,"
-                    + " HOUR      CHAR(20)    NOT NULL,"
+                    + " DATE      DATETIME    NOT NULL,"
                     + " NUMBER    CHAR(20)    NOT NULL,"
                     + " MESSAGE_TEXT TEXT NOT NULL,"
                     + " SEND      INT)";
@@ -63,7 +62,7 @@ class DatabaseHelper {
         }
     }
 
-    public static void addDatasOrder(String dbname, String hour, String date, String number, String text, int send) {
+    public static void addDatasOrder(String dbname, String date, String number, String text, int send) {
         Connection connection = null;
         Statement stat = null;
         try {
@@ -71,10 +70,9 @@ class DatabaseHelper {
             connection = DriverManager.getConnection("jdbc:sqlite:" + dbname + ".db");
 
             stat = connection.createStatement();
-            String query = "INSERT INTO " + dbname + " (ID,DATE,HOUR,NUMBER,MESSAGE_TEXT,SEND) "
+            String query = "INSERT INTO " + dbname + " (ID,DATE,NUMBER,MESSAGE_TEXT,SEND) "
                     + "VALUES (NULL,"
                     + "'" + date + "',"
-                    + "'" + hour + "',"
                     + "'" + number + "',"
                     + "'" + text + "',"
                     + send + ");";
@@ -147,13 +145,12 @@ class DatabaseHelper {
             while (res.next()) {
                 String id = res.getString("ID");
                 String date = res.getString("DATE");
-                String hour = res.getString("HOUR");
                 String number = res.getString("NUMBER");
                 int send = res.getInt("SEND");
                 String sendRes = "not send";
                 if (send == 1)
                     sendRes = "send";
-                result = id + ". " + date + " " + hour + "\n" + number + " " + sendRes;
+                result = id + ". " + date + "\n" + number + " " + sendRes;
 
                 orderList.add(result);
             }
@@ -164,6 +161,33 @@ class DatabaseHelper {
             e.printStackTrace();
         }
         return orderList;
+    }
+
+    public static String getOrderOnTime(String time, String dbname) {
+        Connection connection = null;
+        String result = null;
+        Statement stat = null;
+        try {
+            Class.forName("org.sqlite.JDBC");
+            connection = DriverManager.getConnection("jdbc:sqlite:" + dbname + ".db");
+
+            stat = connection.createStatement();
+            String query = "SELECT * FROM " + dbname + " WHERE DATE == '" + time + "';";
+
+            ResultSet res = stat.executeQuery(query);
+            String id = res.getString("ID");
+            String message_text = res.getString("MESSAGE_TEXT");
+            String number = res.getString("NUMBER");
+
+            result = id + " " + message_text + " " + number;
+
+            stat.close();
+            connection.close();
+            System.out.println("ORDER: \n" + query + "\n done.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 
 }
