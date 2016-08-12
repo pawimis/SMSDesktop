@@ -10,22 +10,21 @@ import java.net.URL;
 import java.net.UnknownHostException;
 import java.sql.Connection;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.ResourceBundle;
-import java.util.TimerTask;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 public class Controller implements Initializable {
     String portnumber;
     String phone_number;
     String message_text;
-    String date;
+    String fullDate;
     String currdate;
-    String currhour;
-    String hour_mins_str;
-    SimpleDateFormat hourFormat;
-    SimpleDateFormat dateFormat;
 
+    SimpleDateFormat hourFormat = new SimpleDateFormat("HH:mm");
+    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+    SimpleDateFormat fulldateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+
+    Timer timer;
 
     Server server;
     int info_list_item_mumber = 0;
@@ -61,7 +60,7 @@ public class Controller implements Initializable {
         try {
             label_ipAddress.setText(InetAddress.getLocalHost().getHostAddress());
             updateDate();
-            System.out.println(currdate + " " + currhour);
+            System.out.println(currdate);
 
             Connection userCon = DatabaseHelper.connect(Variables.USERDB);
             Connection orderCon = DatabaseHelper.connect(Variables.ORDERDB);
@@ -77,40 +76,48 @@ public class Controller implements Initializable {
 
     public void updateDate() {
         Calendar now = Calendar.getInstance();
-        hourFormat = new SimpleDateFormat("HH:mm");
-        dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        currdate = dateFormat.format(now.getTime()).toString();
-        currhour = hourFormat.format(now.getTime()).toString();
+        currdate = fulldateFormat.format(now.getTime()).toString();
     }
 
     public void button_save_action() {
 
     }
     public void button_send_action() {
+        String date = null;
+        String hour_mins_str = null;
         phone_number = textField_number.getText().toString();
         message_text = textArea_Message.getText().toString();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         if (datepicker.getValue() != null && textField_hour.getText() != null) {
             hour_mins_str = textField_hour.getText().toString();
-            date = datepicker.getValue().toString();
+            date = datepicker.getValue().format(formatter);
+            //date = dateFormat.format(datepicker.getValue()).toString();
+            fullDate = date + " " + hour_mins_str;
         } else {
             updateDate();
-            hour_mins_str = currhour;
-            date = currdate;
+            fullDate = currdate;
         }
-        System.out.println(date);
+        System.out.println(fullDate);
         if (!phone_number.isEmpty()) {
             if (!message_text.isEmpty()) {
                 if (Radiobutton_sendNow.isSelected()) {
                     System.out.print("Attempt to send ");
                     String check = DatabaseHelper.getUser(Variables.USERDB);
                     System.out.println(check);
-                    DatabaseHelper.addDatasOrder(Variables.ORDERDB, hour_mins_str, date, phone_number, message_text, 1);
+                    DatabaseHelper.addDatasOrder(Variables.ORDERDB, fullDate, phone_number, message_text, 1);
 
                     //GCMMessageSend.SendMessage(message_text, phone_number, DatabaseHelper.getUser(Variables.USERDB));
                     infoSetText("Message send");
                     statusSetText();
                 } else if (!hour_mins_str.isEmpty() && !date.isEmpty()) {
-                    DatabaseHelper.addDatasOrder(Variables.ORDERDB, hour_mins_str, date, phone_number, message_text, 0);
+                    DatabaseHelper.addDatasOrder(Variables.ORDERDB, fullDate, phone_number, message_text, 0);
+                    timer = new Timer();
+                    try {
+                        timer.schedule(new Scheduler(), fulldateFormat.parse(fullDate));
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
                     statusSetText();
                 } else
                     popupWarning("Pick send now or set date to send message");
@@ -195,10 +202,17 @@ public class Controller implements Initializable {
         }
     }
 
-    private static class Sheduler extends TimerTask {
+    private static class Scheduler extends TimerTask {
 
         @Override
         public void run() {
+            System.out.println("Sending scheduled message");
+            SimpleDateFormat fulldateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+            Calendar currentTime = Calendar.getInstance();
+            String dateNow = fulldateFormat.format(currentTime.getTime()).toString();
+            String recivedQuery = DatabaseHelper.getOrderOnTime(dateNow, Variables.ORDERDB);
+            System.out.println(recivedQuery);
+            //GCMMessageSend.SendMessage(message_text, phone_number, DatabaseHelper.getUser(Variables.USERDB));
 
         }
     }
