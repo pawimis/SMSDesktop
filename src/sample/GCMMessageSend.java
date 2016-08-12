@@ -13,7 +13,7 @@ import java.net.URL;
 public class GCMMessageSend {
 
 
-    public void SendMessage(String messageText, String number, String clientGCM) {
+    public static void SendMessage(String messageText, String number, String clientGCM) {
         try {
             System.out.print("attempt to send");
             JSONObject jsonObject = new JSONObject();

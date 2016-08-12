@@ -9,17 +9,24 @@ import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
 import java.sql.Connection;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.ResourceBundle;
+import java.util.TimerTask;
 
 public class Controller implements Initializable {
     String portnumber;
     String phone_number;
     String message_text;
     String date;
+    String currdate;
+    String currhour;
     String hour_mins_str;
+    SimpleDateFormat hourFormat;
+    SimpleDateFormat dateFormat;
 
-    GCMMessageSend gcmMessageSend;
+
     Server server;
     int info_list_item_mumber = 0;
     @FXML
@@ -53,20 +60,27 @@ public class Controller implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         try {
             label_ipAddress.setText(InetAddress.getLocalHost().getHostAddress());
-            Calendar now = Calendar.getInstance();
-            int hour = now.get(Calendar.HOUR_OF_DAY);
-            int min = now.get(Calendar.MINUTE);
+            updateDate();
+            System.out.println(currdate + " " + currhour);
+
             Connection userCon = DatabaseHelper.connect(Variables.USERDB);
             Connection orderCon = DatabaseHelper.connect(Variables.ORDERDB);
             DatabaseHelper.createTableUser(userCon, Variables.USERDB);
             DatabaseHelper.createTableOrder(orderCon, Variables.ORDERDB);
+            statusSetText();
 
-
-            textField_hour.setPromptText(Integer.toString(hour) + ":" + Integer.toString(min));
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
 
+    }
+
+    public void updateDate() {
+        Calendar now = Calendar.getInstance();
+        hourFormat = new SimpleDateFormat("HH:mm");
+        dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        currdate = dateFormat.format(now.getTime()).toString();
+        currhour = hourFormat.format(now.getTime()).toString();
     }
 
     public void button_save_action() {
@@ -75,18 +89,29 @@ public class Controller implements Initializable {
     public void button_send_action() {
         phone_number = textField_number.getText().toString();
         message_text = textArea_Message.getText().toString();
-        hour_mins_str = textField_hour.getText().toString();
-        date = datepicker.getValue().toString();
-        gcmMessageSend = new GCMMessageSend();
+        if (datepicker.getValue() != null && textField_hour.getText() != null) {
+            hour_mins_str = textField_hour.getText().toString();
+            date = datepicker.getValue().toString();
+        } else {
+            updateDate();
+            hour_mins_str = currhour;
+            date = currdate;
+        }
+        System.out.println(date);
         if (!phone_number.isEmpty()) {
             if (!message_text.isEmpty()) {
                 if (Radiobutton_sendNow.isSelected()) {
                     System.out.print("Attempt to send ");
-                    gcmMessageSend.SendMessage(message_text, phone_number, DatabaseHelper.getUser(Variables.USERDB));
+                    String check = DatabaseHelper.getUser(Variables.USERDB);
+                    System.out.println(check);
+                    DatabaseHelper.addDatasOrder(Variables.ORDERDB, hour_mins_str, date, phone_number, message_text, 1);
+
+                    //GCMMessageSend.SendMessage(message_text, phone_number, DatabaseHelper.getUser(Variables.USERDB));
                     infoSetText("Message send");
+                    statusSetText();
                 } else if (!hour_mins_str.isEmpty() && !date.isEmpty()) {
-
-
+                    DatabaseHelper.addDatasOrder(Variables.ORDERDB, hour_mins_str, date, phone_number, message_text, 0);
+                    statusSetText();
                 } else
                     popupWarning("Pick send now or set date to send message");
             } else
@@ -160,6 +185,22 @@ public class Controller implements Initializable {
         info_list_item_mumber++;
     }
 
+    private void statusSetText() {
+        listView_status.getItems().clear();
+        ArrayList<String> arrayList = DatabaseHelper.getAllOrders(Variables.ORDERDB);
+        int i = 0;
+        for (String res : arrayList) {
+            listView_status.getItems().add(i, res);
+            i++;
+        }
+    }
 
+    private static class Sheduler extends TimerTask {
+
+        @Override
+        public void run() {
+
+        }
+    }
 
 }

@@ -1,6 +1,7 @@
 package sample;
 
 import java.sql.*;
+import java.util.ArrayList;
 
 /**
  * Created by pmisi on 12.08.2016.
@@ -26,9 +27,9 @@ class DatabaseHelper {
             stat = connection.createStatement();
             String sqlTable = "CREATE TABLE IF NOT EXISTS " + table
                     + "( ID INTEGER PRIMARY KEY AUTOINCREMENT,"
-                    + " DATE      CHAR(11)    NOT NULL,"
-                    + " HOUR      CHAR(6)    NOT NULL,"
-                    + " NUMBER    CHAR(13)    NOT NULL,"
+                    + " DATE      CHAR(20)    NOT NULL,"
+                    + " HOUR      CHAR(20)    NOT NULL,"
+                    + " NUMBER    CHAR(20)    NOT NULL,"
                     + " MESSAGE_TEXT TEXT NOT NULL,"
                     + " SEND      INT)";
             stat.executeUpdate(sqlTable);
@@ -71,7 +72,7 @@ class DatabaseHelper {
 
             stat = connection.createStatement();
             String query = "INSERT INTO " + dbname + " (ID,DATE,HOUR,NUMBER,MESSAGE_TEXT,SEND) "
-                    + "VALUES (NULL"
+                    + "VALUES (NULL,"
                     + "'" + date + "',"
                     + "'" + hour + "',"
                     + "'" + number + "',"
@@ -127,6 +128,42 @@ class DatabaseHelper {
             e.printStackTrace();
         }
         return result;
+    }
+
+    public static ArrayList<String> getAllOrders(String dbname) {
+        ArrayList<String> orderList = new ArrayList<String>();
+        Connection connection = null;
+        String result = null;
+        Statement stat = null;
+        try {
+            Class.forName("org.sqlite.JDBC");
+            connection = DriverManager.getConnection("jdbc:sqlite:" + dbname + ".db");
+
+            stat = connection.createStatement();
+            String query = "SELECT * FROM " + dbname + " ;";
+
+
+            ResultSet res = stat.executeQuery(query);
+            while (res.next()) {
+                String id = res.getString("ID");
+                String date = res.getString("DATE");
+                String hour = res.getString("HOUR");
+                String number = res.getString("NUMBER");
+                int send = res.getInt("SEND");
+                String sendRes = "not send";
+                if (send == 1)
+                    sendRes = "send";
+                result = id + ". " + date + " " + hour + "\n" + number + " " + sendRes;
+
+                orderList.add(result);
+            }
+            stat.close();
+            connection.close();
+            System.out.println("ORDER: \n" + query + "\n done.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return orderList;
     }
 
 }
