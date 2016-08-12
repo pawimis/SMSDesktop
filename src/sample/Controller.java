@@ -3,16 +3,18 @@ package sample;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
 
-
-import java.net.*;
+import java.net.InetAddress;
+import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.ResourceBundle;
 
 public class Controller implements Initializable {
     String portnumber;
+    String phone_number;
+    String message_text;
+    ClientDatas clientDatas;
+    GCMMessageSend gcmMessageSend;
     Server server;
     int info_list_item_mumber = 0;
     @FXML
@@ -50,6 +52,22 @@ public class Controller implements Initializable {
         }
 
     }
+
+    public void button_send_action() {
+        phone_number = textField_number.getText().toString();
+        message_text = textArea_Message.getText().toString();
+        gcmMessageSend = new GCMMessageSend();
+        if (!phone_number.isEmpty()) {
+            if (!message_text.isEmpty()) {
+                System.out.print("Button pressed");
+                String gcm = clientDatas.getClient_GCM_ID();
+                System.out.println("gcm : !!!!!!!!!! " + gcm);
+                gcmMessageSend.SendMessage(message_text, phone_number, clientDatas.getClient_GCM_ID());
+                infoSetText("Message send");
+            }
+
+        }
+    }
     public void button_connect_action(){
         portnumber =  textField_portNumber.getText().toString();
         if(!portnumber.isEmpty()){
@@ -63,8 +81,14 @@ public class Controller implements Initializable {
                         @Override
                         public void messageReceived(String message) {
                             infoSetText("Connected");
-                            infoSetText("Your Gcm_id is:");
-                            infoSetText(message);
+                            System.out.println(message);
+                            clientDatas = new ClientDatas(message);
+                            infoSetText("GCM_ID obtained and saved");
+                            server.CloseConnection();
+                            infoSetText("Connection established");
+                            infoSetText("Closing local connection");
+
+
                         }
                     });
                     server.start();
@@ -99,14 +123,15 @@ public class Controller implements Initializable {
     }
     public boolean isRange(String s){
         int conf = Integer.parseInt(s);
-        if((conf >= 1024) && (conf <= 65535))
-            return true;
-        else
-            return false;
+        return (conf >= 1024) && (conf <= 65535);
     }
     private void infoSetText(String message){
         listView_info.getItems().add(info_list_item_mumber , message);
         info_list_item_mumber++;
+    }
+
+    private void SaveDatas(String text) {
+
     }
 
 }

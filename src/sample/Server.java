@@ -1,7 +1,5 @@
 package sample;
 
-import com.sun.corba.se.spi.orbutil.fsm.Input;
-
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -57,6 +55,10 @@ public class Server extends Thread {
         }
     }
     public interface OnMessageReceived {
-        public void messageReceived(String message);
+        void messageReceived(String message);
+    }
+
+    public void CloseConnection() {
+        running = false;
     }
 }
