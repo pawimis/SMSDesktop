@@ -74,5 +74,7 @@
          </children>
       </VBox>
       <ListView fx:id="listView_info" prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="1" />
+      <Button fx:id="button_save" mnemonicParsing="false" onAction="#button_save_action" text="Save properties"
+              GridPane.rowIndex="2"/>
    </children>
 </GridPane>

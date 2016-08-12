@@ -1,5 +1,6 @@
 package sample;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
@@ -7,13 +8,17 @@ import javafx.scene.control.*;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
+import java.sql.Connection;
+import java.util.Calendar;
 import java.util.ResourceBundle;
 
 public class Controller implements Initializable {
     String portnumber;
     String phone_number;
     String message_text;
-    ClientDatas clientDatas;
+    String date;
+    String hour_mins_str;
+
     GCMMessageSend gcmMessageSend;
     Server server;
     int info_list_item_mumber = 0;
@@ -39,6 +44,8 @@ public class Controller implements Initializable {
     private ListView<String> listView_info;
     @FXML
     private Label label_ipAddress;
+    @FXML
+    private Button button_save;
 
 
 
@@ -46,27 +53,46 @@ public class Controller implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         try {
             label_ipAddress.setText(InetAddress.getLocalHost().getHostAddress());
+            Calendar now = Calendar.getInstance();
+            int hour = now.get(Calendar.HOUR_OF_DAY);
+            int min = now.get(Calendar.MINUTE);
+            Connection userCon = DatabaseHelper.connect(Variables.USERDB);
+            Connection orderCon = DatabaseHelper.connect(Variables.ORDERDB);
+            DatabaseHelper.createTableUser(userCon, Variables.USERDB);
+            DatabaseHelper.createTableOrder(orderCon, Variables.ORDERDB);
 
+
+            textField_hour.setPromptText(Integer.toString(hour) + ":" + Integer.toString(min));
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
 
     }
 
+    public void button_save_action() {
+
+    }
     public void button_send_action() {
         phone_number = textField_number.getText().toString();
         message_text = textArea_Message.getText().toString();
+        hour_mins_str = textField_hour.getText().toString();
+        date = datepicker.getValue().toString();
         gcmMessageSend = new GCMMessageSend();
         if (!phone_number.isEmpty()) {
             if (!message_text.isEmpty()) {
-                System.out.print("Button pressed");
-                String gcm = clientDatas.getClient_GCM_ID();
-                System.out.println("gcm : !!!!!!!!!! " + gcm);
-                gcmMessageSend.SendMessage(message_text, phone_number, clientDatas.getClient_GCM_ID());
-                infoSetText("Message send");
-            }
+                if (Radiobutton_sendNow.isSelected()) {
+                    System.out.print("Attempt to send ");
+                    gcmMessageSend.SendMessage(message_text, phone_number, DatabaseHelper.getUser(Variables.USERDB));
+                    infoSetText("Message send");
+                } else if (!hour_mins_str.isEmpty() && !date.isEmpty()) {
 
-        }
+
+                } else
+                    popupWarning("Pick send now or set date to send message");
+            } else
+                popupWarning("Message cannot be empty");
+        } else
+            popupWarning("Give phone number");
     }
     public void button_connect_action(){
         portnumber =  textField_portNumber.getText().toString();
@@ -80,15 +106,19 @@ public class Controller implements Initializable {
 
                         @Override
                         public void messageReceived(String message) {
-                            infoSetText("Connected");
-                            System.out.println(message);
-                            clientDatas = new ClientDatas(message);
-                            infoSetText("GCM_ID obtained and saved");
-                            server.CloseConnection();
-                            infoSetText("Connection established");
-                            infoSetText("Closing local connection");
 
-
+                            Platform.runLater(new Runnable() {
+                                @Override
+                                public void run() {
+                                    infoSetText("Connected");
+                                    infoSetText("GCM_ID obtained and saved");
+                                    System.out.println(message);
+                                    DatabaseHelper.addDatasUser(Variables.USERDB, message);
+                                    server.CloseConnection();
+                                    infoSetText("Connection established");
+                                    infoSetText("Closing local connection");
+                                }
+                            });
                         }
                     });
                     server.start();
@@ -130,8 +160,6 @@ public class Controller implements Initializable {
         info_list_item_mumber++;
     }
 
-    private void SaveDatas(String text) {
 
-    }
 
 }
