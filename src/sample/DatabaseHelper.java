@@ -61,6 +61,47 @@ class DatabaseHelper {
             System.out.println(ex.getErrorCode());
         }
     }
+    public static void createTableContacts(Connection connection , String table){
+        Statement stat = null;
+        try {
+            stat = connection.createStatement();
+            String sqlTable = "CREATE TABLE IF NOT EXISTS " + table
+                    + "( ID INTEGER PRIMARY KEY AUTOINCREMENT,"
+                    + " NUMBER    CHAR(20)    NOT NULL,"
+                    + " NAME      TEXT    NOT NULL)";
+
+            stat.executeUpdate(sqlTable);
+            stat.close();
+            connection.close();
+            System.out.println("Contacts DB created");
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            System.out.println(ex.getMessage());
+            System.out.println(ex.getCause());
+            System.out.println(ex.getErrorCode());
+        }
+    }
+    public static void addDatasContacts(String dbname, String name,String number){
+        Connection connection = null;
+        Statement stat = null;
+        try {
+            Class.forName("org.sqlite.JDBC");
+            connection = DriverManager.getConnection("jdbc:sqlite:" + dbname + ".db");
+
+            stat = connection.createStatement();
+            String query = "INSERT INTO " + dbname + " (ID,NUMBER,NAME) "
+                    + "VALUES (NULL,"
+                    + "'" + number + "',"
+                    + "'" + name + "');";
+
+            stat.executeUpdate(query);
+            stat.close();
+            connection.close();
+            System.out.println("ORDER: \n" + query + "\n done.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     public static String addDatasOrder(String dbname, String date, String number, String text, int send) {
         Connection connection = null;
@@ -111,6 +152,37 @@ class DatabaseHelper {
         }
     }
 
+    public static ArrayList<String> getAllContacts(String dbname){
+        ArrayList<String> orderList = new ArrayList<String>();
+        Connection connection = null;
+        String result = null;
+        Statement stat = null;
+        try {
+            Class.forName("org.sqlite.JDBC");
+            connection = DriverManager.getConnection("jdbc:sqlite:" + dbname + ".db");
+
+            stat = connection.createStatement();
+            String query = "SELECT * FROM " + dbname + " ;";
+
+
+            ResultSet res = stat.executeQuery(query);
+            while (res.next()) {
+                String id = res.getString("ID");
+                String number = res.getString("NUMBER");
+                String name = res.getString("NAME");
+
+                result = id + ". " + name + "\n" + number;
+
+                orderList.add(result);
+            }
+            stat.close();
+            connection.close();
+            System.out.println("ORDER: \n" + query + "\n done.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return orderList;
+    }
     public static String getUser(String dbname) {
         Connection connection = null;
         String result = null;

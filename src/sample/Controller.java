@@ -1,10 +1,20 @@
 package sample;
 
 import javafx.application.Platform;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.chart.PieChart;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
+import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URL;
 import java.net.UnknownHostException;
@@ -27,6 +37,9 @@ public class Controller implements Initializable {
     Timer timer;
 
     Server server;
+    Stage childstage;
+    ContactController controller;
+    Parent root;
     int info_list_item_mumber = 0;
     @FXML
     private Button button_connect;
@@ -51,36 +64,90 @@ public class Controller implements Initializable {
     @FXML
     private Label label_ipAddress;
     @FXML
-    private Button button_save;
-
+    private Button button_add_contact ;
+    @FXML
+    private  ListView<String> list_view_contacts;
 
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         try {
+
             label_ipAddress.setText(InetAddress.getLocalHost().getHostAddress());
             updateDate();
             System.out.println(currdate);
 
             Connection userCon = DatabaseHelper.connect(Variables.USERDB);
             Connection orderCon = DatabaseHelper.connect(Variables.ORDERDB);
+            Connection contactCon = DatabaseHelper.connect(Variables.CONTACTSDB);
+            DatabaseHelper.createTableContacts(contactCon,Variables.CONTACTSDB);
             DatabaseHelper.createTableUser(userCon, Variables.USERDB);
             DatabaseHelper.createTableOrder(orderCon, Variables.ORDERDB);
             statusSetText();
+            setContactList();
 
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
-    }
 
-    public void updateDate() {
+    }
+    @FXML
+    public void pickContact(MouseEvent e)throws IOException{
+        listViewContacSelected();
+    }
+    private void updateDate() {
         Calendar now = Calendar.getInstance();
         currdate = fulldateFormat.format(now.getTime()).toString();
     }
-
-    public void button_save_action() {
+    public void listViewContacSelected(){
+        String item = list_view_contacts.getSelectionModel().getSelectedItem().toString();
+        System.out.println(item);
+        //setNumber(item);
+        String [] parts = item.split(" ");
+        textField_number.setText(parts[2]);
 
     }
+    private void setNumber(String item){
+        String [] parts = item.split(" ");
+
+        System.out.println(parts);
+
+        int size = parts.length;
+        System.out.println(size);
+        String number = null;
+        for (int i=1 ; i==size ; i++){
+            System.out.println(" nummmmm "+parts[i]);
+            if(Variables.isInteger(parts[i])){
+                number = parts[i];
+                break;
+            }
+        }
+        if(!number.isEmpty())
+            textField_number.setText(number);
+        else
+            System.out.println("ERROR with number");
+    }
+    public void button_add_action(){
+        try{
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("new_contact.fxml"));
+            loader.setController(controller);
+            loader.setRoot(controller);
+            root = loader.load();
+            childstage = new Stage();
+            childstage.setScene(new Scene(root));
+            childstage.show();
+        }catch (IOException e){
+            e.printStackTrace();
+        }
+
+        childstage.setOnCloseRequest(new EventHandler<WindowEvent>() {
+            @Override
+            public void handle(WindowEvent event) {
+                setContactList();
+            }
+        });
+    }
+
     public void button_send_action() {
         String date = null;
         String hour_mins_str = null;
@@ -128,8 +195,8 @@ public class Controller implements Initializable {
     public void button_connect_action(){
         portnumber =  textField_portNumber.getText().toString();
         if(!portnumber.isEmpty()){
-            if(isInteger(portnumber)){
-                if(isRange(portnumber)){
+            if(Variables.isInteger(portnumber)){
+                if(Variables.isRange(portnumber)){
                     infoSetText("Connecting...");
                     System.out.println("S: Connecting...");
                     button_connect.setDisable(true);
@@ -171,21 +238,7 @@ public class Controller implements Initializable {
         alert.setContentText(warning);
         alert.showAndWait();
     }
-    public  boolean isInteger(String s) {
-        try {
-             Integer.parseInt(s);
-        } catch(NumberFormatException e) {
-            return false;
-        } catch(NullPointerException e) {
-            return false;
-        }
 
-        return true;
-    }
-    public boolean isRange(String s){
-        int conf = Integer.parseInt(s);
-        return (conf >= 1024) && (conf <= 65535);
-    }
     private void infoSetText(String message){
         listView_info.getItems().add(info_list_item_mumber , message);
         info_list_item_mumber++;
@@ -200,7 +253,15 @@ public class Controller implements Initializable {
             i++;
         }
     }
-
+    public void setContactList(){
+        list_view_contacts.getItems().clear();
+        ArrayList<String> arrayList = DatabaseHelper.getAllContacts(Variables.CONTACTSDB);
+        int i = 0;
+        for (String res : arrayList){
+            list_view_contacts.getItems().add(i,res);
+            i++;
+        }
+    }
     private static class Scheduler extends TimerTask {
 
         private final String identifier;
