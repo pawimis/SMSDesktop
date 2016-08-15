@@ -62,9 +62,10 @@ class DatabaseHelper {
         }
     }
 
-    public static void addDatasOrder(String dbname, String date, String number, String text, int send) {
+    public static String addDatasOrder(String dbname, String date, String number, String text, int send) {
         Connection connection = null;
         Statement stat = null;
+        String id = null;
         try {
             Class.forName("org.sqlite.JDBC");
             connection = DriverManager.getConnection("jdbc:sqlite:" + dbname + ".db");
@@ -77,12 +78,17 @@ class DatabaseHelper {
                     + "'" + text + "',"
                     + send + ");";
             stat.executeUpdate(query);
+            query = "SELECT ID FROM " + dbname + " WHERE MESSAGE_TEXT = '" + text + "' AND NUMBER = '" + number
+                    + "' AND  DATE = '"+ date +"' ;";
+            ResultSet res = stat.executeQuery(query);
+            id = res.getString("ID");
             stat.close();
             connection.close();
             System.out.println("ORDER: \n" + query + "\n done.");
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return id;
     }
 
     public static void addDatasUser(String dbname, String gcm_id) {
@@ -163,23 +169,22 @@ class DatabaseHelper {
         return orderList;
     }
 
-    public static String getOrderOnTime(String time, String dbname) {
+    public static ArrayList<String> getOrderOnID(String id, String dbname) {
         Connection connection = null;
-        String result = null;
+        ArrayList<String> result = new ArrayList<String>();
         Statement stat = null;
         try {
             Class.forName("org.sqlite.JDBC");
             connection = DriverManager.getConnection("jdbc:sqlite:" + dbname + ".db");
 
             stat = connection.createStatement();
-            String query = "SELECT * FROM " + dbname + " WHERE DATE == '" + time + "';";
+            String query = "SELECT * FROM " + dbname + " WHERE ID = '" + id + "';";
 
             ResultSet res = stat.executeQuery(query);
-            String id = res.getString("ID");
-            String message_text = res.getString("MESSAGE_TEXT");
-            String number = res.getString("NUMBER");
+            result.add(res.getString("ID"));
+            result.add(res.getString("MESSAGE_TEXT"));
+            result.add(res.getString("NUMBER"));
 
-            result = id + " " + message_text + " " + number;
 
             stat.close();
             connection.close();
@@ -189,5 +194,21 @@ class DatabaseHelper {
         }
         return result;
     }
+    public static void setOrderSend(String dbname,String identify) {
+        Connection connection = null;
+        Statement stat = null;
+        try {
+            Class.forName("org.sqlite.JDBC");
+            connection = DriverManager.getConnection("jdbc:sqlite:" + dbname + ".db");
 
+            stat = connection.createStatement();
+            String query = "UPDATE " + dbname + " SET SEND = 1 WHERE ID = '" + identify + "';";
+
+            stat.executeUpdate(query);
+            connection.close();
+            System.out.println("ORDER: \n" + query + "\n done.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

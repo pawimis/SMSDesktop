@@ -71,7 +71,6 @@ public class Controller implements Initializable {
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
-
     }
 
     public void updateDate() {
@@ -110,10 +109,10 @@ public class Controller implements Initializable {
                     infoSetText("Message send");
                     statusSetText();
                 } else if (!hour_mins_str.isEmpty() && !date.isEmpty()) {
-                    DatabaseHelper.addDatasOrder(Variables.ORDERDB, fullDate, phone_number, message_text, 0);
+                    String id = DatabaseHelper.addDatasOrder(Variables.ORDERDB, fullDate, phone_number, message_text, 0);
                     timer = new Timer();
                     try {
-                        timer.schedule(new Scheduler(), fulldateFormat.parse(fullDate));
+                        timer.schedule(new Scheduler(id,listView_status), fulldateFormat.parse(fullDate));
 
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -192,7 +191,7 @@ public class Controller implements Initializable {
         info_list_item_mumber++;
     }
 
-    private void statusSetText() {
+    private  void statusSetText() {
         listView_status.getItems().clear();
         ArrayList<String> arrayList = DatabaseHelper.getAllOrders(Variables.ORDERDB);
         int i = 0;
@@ -204,15 +203,38 @@ public class Controller implements Initializable {
 
     private static class Scheduler extends TimerTask {
 
+        private final String identifier;
+        ListView list;
+        Scheduler(String i,ListView list){
+            this.identifier=i;
+            this.list= list;
+        }
         @Override
         public void run() {
             System.out.println("Sending scheduled message");
-            SimpleDateFormat fulldateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-            Calendar currentTime = Calendar.getInstance();
-            String dateNow = fulldateFormat.format(currentTime.getTime()).toString();
-            String recivedQuery = DatabaseHelper.getOrderOnTime(dateNow, Variables.ORDERDB);
-            System.out.println(recivedQuery);
-            //GCMMessageSend.SendMessage(message_text, phone_number, DatabaseHelper.getUser(Variables.USERDB));
+            ArrayList<String> recQuer = new ArrayList<>();
+            recQuer = DatabaseHelper.getOrderOnID(identifier, Variables.ORDERDB);
+            String id = recQuer.get(0);
+            String text = recQuer.get(1);
+            String number = recQuer.get(2);
+            System.out.println(id + " " + text + " " + number);
+            //GCMMessageSend.SendMessage(text, number, DatabaseHelper.getUser(Variables.USERDB));
+            DatabaseHelper.setOrderSend(Variables.ORDERDB , id);
+            Random rand = new Random();
+            int random = rand.nextInt(100);
+            try{
+                wait(random);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            list.getItems().clear();
+            ArrayList<String> arrayList = DatabaseHelper.getAllOrders(Variables.ORDERDB);
+
+            int i = 0;
+            for(String res :arrayList){
+                list.getItems().add(i,res);
+                i++;
+            }
 
         }
     }
