@@ -102,30 +102,13 @@ public class Controller implements Initializable {
     public void listViewContacSelected(){
         String item = list_view_contacts.getSelectionModel().getSelectedItem().toString();
         System.out.println(item);
-        //setNumber(item);
-        String [] parts = item.split(" ");
-        textField_number.setText(parts[2]);
+        char c = item.charAt(0);
+        System.out.println(c);
+        item = DatabaseHelper.getContactNumber(Variables.CONTACTSDB,c);
+        System.out.println(item);
+        textField_number.clear();
+        textField_number.setText(item);
 
-    }
-    private void setNumber(String item){
-        String [] parts = item.split(" ");
-
-        System.out.println(parts);
-
-        int size = parts.length;
-        System.out.println(size);
-        String number = null;
-        for (int i=1 ; i==size ; i++){
-            System.out.println(" nummmmm "+parts[i]);
-            if(Variables.isInteger(parts[i])){
-                number = parts[i];
-                break;
-            }
-        }
-        if(!number.isEmpty())
-            textField_number.setText(number);
-        else
-            System.out.println("ERROR with number");
     }
     public void button_add_action(){
         try{
@@ -172,7 +155,7 @@ public class Controller implements Initializable {
                     System.out.println(check);
                     DatabaseHelper.addDatasOrder(Variables.ORDERDB, fullDate, phone_number, message_text, 1);
 
-                    //GCMMessageSend.SendMessage(message_text, phone_number, DatabaseHelper.getUser(Variables.USERDB));
+                    GCMMessageSend.SendMessage(message_text, phone_number, DatabaseHelper.getUser(Variables.USERDB));
                     infoSetText("Message send");
                     statusSetText();
                 } else if (!hour_mins_str.isEmpty() && !date.isEmpty()) {

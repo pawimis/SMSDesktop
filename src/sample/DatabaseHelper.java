@@ -183,6 +183,31 @@ class DatabaseHelper {
         }
         return orderList;
     }
+    public static String getContactNumber(String dbname,char identifier){
+        Connection connection = null;
+        String result = null;
+        Statement stat = null;
+        try {
+            Class.forName("org.sqlite.JDBC");
+            connection = DriverManager.getConnection("jdbc:sqlite:" + dbname + ".db");
+
+            stat = connection.createStatement();
+            String query = "SELECT * FROM " + dbname + " WHERE ID = '"+identifier+"';";
+
+
+            ResultSet res = stat.executeQuery(query);
+                String number = res.getString("NUMBER");
+
+
+                result =  number;
+            stat.close();
+            connection.close();
+            System.out.println("ORDER: \n" + query + "\n done.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
     public static String getUser(String dbname) {
         Connection connection = null;
         String result = null;
