@@ -8,9 +8,6 @@ import javafx.scene.control.TextField;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-/**
- * Created by pmisi on 15.08.2016.
- */
 public class ContactController implements Initializable {
     Controller controller;
     @FXML

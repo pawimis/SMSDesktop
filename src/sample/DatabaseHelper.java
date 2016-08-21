@@ -3,9 +3,6 @@ package sample;
 import java.sql.*;
 import java.util.ArrayList;
 
-/**
- * Created by pmisi on 12.08.2016.
- */
 class DatabaseHelper {
     public static Connection connect(String dbname) {
         Connection connection = null;

@@ -1,8 +1,5 @@
 package sample;
 
-/**
- * Created by pmisi on 12.08.2016.
- */
 public class Variables {
     public static final String SERVERAPIKEY = "xxxx";
     public static final String USERDB = "userDb";

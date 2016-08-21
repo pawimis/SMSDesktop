@@ -7,11 +7,7 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-/**
- * Created by pmisi on 12.08.2016.
- */
 public class GCMMessageSend {
-
 
     public static void SendMessage(String messageText, String number, String clientGCM) {
         try {

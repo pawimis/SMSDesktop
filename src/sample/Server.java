@@ -4,9 +4,6 @@ import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-/**
- * Created by pmisi on 11.08.2016.
- */
 public class Server extends Thread {
     private boolean running = false;
     private int port;
@@ -24,32 +21,29 @@ public class Server extends Thread {
     public void run() {
         super.run();
         running = true;
-
-        try{
+        try {
             System.out.println("S: Connecting...");
             ServerSocket serverSocket = new ServerSocket(port);
             Socket client = serverSocket.accept();
             System.out.println("S: Receiving...");
-            try{
+            try {
                 mOut = new PrintWriter(new BufferedWriter(new OutputStreamWriter(client.getOutputStream())), true);
-
                 BufferedReader mIn = new BufferedReader(new InputStreamReader(client.getInputStream()));
                 while (running) {
                     String message = mIn.readLine();
-
                     if (message != null && messageListener != null) {
                         //call the method messageReceived from ServerBoard class
                         messageListener.messageReceived(message);
                     }
                 }
             }catch (Exception e) {
-                System.out.println("S: Error");
+                 System.out.println("S: Error");
                 e.printStackTrace();
-            }finally {
+            } finally {
                 client.close();
                 System.out.println("S: Done.");
             }
-        }catch (Exception e) {
+        } catch (Exception e) {
             System.out.println("S: Error");
             e.printStackTrace();
         }

@@ -47,7 +47,7 @@
       <VBox prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="2" GridPane.rowIndex="1">
          <children>
             <TextArea fx:id="textArea_Message" prefHeight="282.0" prefWidth="200.0" />
-            <RadioButton fx:id="Radiobutton_sendNow" mnemonicParsing="false" text="Send now" />
+            <RadioButton fx:id="RadioButtonSendNow" mnemonicParsing="false" text="Send now" />
             <HBox prefHeight="100.0" prefWidth="200.0">
                <children>
                   <VBox prefHeight="87.0" prefWidth="67.0">
@@ -88,6 +88,6 @@
       </VBox>
       <ListView fx:id="listView_info" prefHeight="200.0" prefWidth="200.0" GridPane.rowIndex="1" />
       <ListView fx:id="list_view_contacts" onMouseClicked="#pickContact" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="3" GridPane.rowIndex="1" />
-      <Button fx:id="button_add_contact" mnemonicParsing="false" onAction="#button_add_action" text="Add contact" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+      <Button fx:id="button_add_contact" mnemonicParsing="false" onAction="#buttonAddAction" text="Add contact" GridPane.columnIndex="3" GridPane.rowIndex="2" />
    </children>
 </GridPane>
