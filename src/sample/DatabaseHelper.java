@@ -4,11 +4,11 @@ import java.sql.*;
 import java.util.ArrayList;
 
 class DatabaseHelper {
-    static Connection connect(String dbname) {
+    static Connection connect(String dbName) {
         Connection connection = null;
         try {
             Class.forName("org.sqlite.JDBC");
-            connection = DriverManager.getConnection("jdbc:sqlite:" + dbname + ".db");
+            connection = DriverManager.getConnection("jdbc:sqlite:" + dbName + ".db");
             System.out.println("Connected with database");
 
 
@@ -80,15 +80,15 @@ class DatabaseHelper {
         }
     }
 
-    static void addDataContacts(String dbname, String name, String number) {
+    static void addDataContacts(String dbName, String name, String number) {
         Connection connection = null;
         Statement stat = null;
         try {
             Class.forName("org.sqlite.JDBC");
-            connection = DriverManager.getConnection("jdbc:sqlite:" + dbname + ".db");
+            connection = DriverManager.getConnection("jdbc:sqlite:" + dbName + ".db");
 
             stat = connection.createStatement();
-            String query = "INSERT INTO " + dbname + " (ID,NUMBER,NAME) "
+            String query = "INSERT INTO " + dbName + " (ID,NUMBER,NAME) "
                     + "VALUES (NULL,"
                     + "'" + number + "',"
                     + "'" + name + "');";
@@ -102,23 +102,23 @@ class DatabaseHelper {
         }
     }
 
-    static String addDatasOrder(String dbname, String date, String number, String text, int send) {
+    static String addDatasOrder(String dbName, String date, String number, String text, int send) {
         Connection connection;
         Statement stat;
         String id = null;
         try {
             Class.forName("org.sqlite.JDBC");
-            connection = DriverManager.getConnection("jdbc:sqlite:" + dbname + ".db");
+            connection = DriverManager.getConnection("jdbc:sqlite:" + dbName + ".db");
 
             stat = connection.createStatement();
-            String query = "INSERT INTO " + dbname + " (ID,DATE,NUMBER,MESSAGE_TEXT,SEND) "
+            String query = "INSERT INTO " + dbName + " (ID,DATE,NUMBER,MESSAGE_TEXT,SEND) "
                     + "VALUES (NULL,"
                     + "'" + date + "',"
                     + "'" + number + "',"
                     + "'" + text + "',"
                     + send + ");";
             stat.executeUpdate(query);
-            query = "SELECT ID FROM " + dbname + " WHERE MESSAGE_TEXT = '" + text + "' AND NUMBER = '" + number
+            query = "SELECT ID FROM " + dbName + " WHERE MESSAGE_TEXT = '" + text + "' AND NUMBER = '" + number
                     + "' AND  DATE = '"+ date +"' ;";
             ResultSet res = stat.executeQuery(query);
             id = res.getString("ID");
@@ -131,15 +131,15 @@ class DatabaseHelper {
         return id;
     }
 
-    static void addDatasUser(String dbname, String gcm_id) {
+    static void addDatasUser(String dbName, String gcm_id) {
         Connection connection;
         Statement stat;
         try {
             Class.forName("org.sqlite.JDBC");
-            connection = DriverManager.getConnection("jdbc:sqlite:" + dbname + ".db");
+            connection = DriverManager.getConnection("jdbc:sqlite:" + dbName + ".db");
 
             stat = connection.createStatement();
-            String query = "INSERT INTO " + dbname + " (GCM_ID) "
+            String query = "INSERT INTO " + dbName + " (GCM_ID) "
                     + "VALUES ("
                     + "'" + gcm_id + "');";
             stat.executeUpdate(query);
@@ -151,17 +151,17 @@ class DatabaseHelper {
         }
     }
 
-    static ArrayList<String> getAllContacts(String dbname) {
+    static ArrayList<String> getAllContacts(String dbName) {
         ArrayList<String> orderList = new ArrayList<>();
         Connection connection;
         String result;
         Statement stat;
         try {
             Class.forName("org.sqlite.JDBC");
-            connection = DriverManager.getConnection("jdbc:sqlite:" + dbname + ".db");
+            connection = DriverManager.getConnection("jdbc:sqlite:" + dbName + ".db");
 
             stat = connection.createStatement();
-            String query = "SELECT * FROM " + dbname + " ;";
+            String query = "SELECT * FROM " + dbName + " ;";
 
 
             ResultSet res = stat.executeQuery(query);
@@ -183,16 +183,16 @@ class DatabaseHelper {
         return orderList;
     }
 
-    static String getContactNumber(String dbname, char identifier) {
+    static String getContactNumber(String dbName, String identifier) {
         Connection connection;
         String result = null;
         Statement stat;
         try {
             Class.forName("org.sqlite.JDBC");
-            connection = DriverManager.getConnection("jdbc:sqlite:" + dbname + ".db");
+            connection = DriverManager.getConnection("jdbc:sqlite:" + dbName + ".db");
 
             stat = connection.createStatement();
-            String query = "SELECT * FROM " + dbname + " WHERE ID = '"+identifier+"';";
+            String query = "SELECT * FROM " + dbName + " WHERE ID = '" + identifier + "';";
 
 
             ResultSet res = stat.executeQuery(query);
@@ -209,16 +209,16 @@ class DatabaseHelper {
         return result;
     }
 
-    static String getUser(String dbname) {
+    static String getUser(String dbName) {
         Connection connection;
         String result = null;
         Statement stat;
         try {
             Class.forName("org.sqlite.JDBC");
-            connection = DriverManager.getConnection("jdbc:sqlite:" + dbname + ".db");
+            connection = DriverManager.getConnection("jdbc:sqlite:" + dbName + ".db");
 
             stat = connection.createStatement();
-            String query = "SELECT * FROM " + dbname + " ;";
+            String query = "SELECT * FROM " + dbName + " ;";
 
 
             ResultSet res = stat.executeQuery(query);
@@ -232,17 +232,17 @@ class DatabaseHelper {
         return result;
     }
 
-    static ArrayList<String> getAllOrders(String dbname) {
+    static ArrayList<String> getAllOrders(String dbName) {
         ArrayList<String> orderList = new ArrayList<>();
         Connection connection;
         String result;
         Statement stat;
         try {
             Class.forName("org.sqlite.JDBC");
-            connection = DriverManager.getConnection("jdbc:sqlite:" + dbname + ".db");
+            connection = DriverManager.getConnection("jdbc:sqlite:" + dbName + ".db");
 
             stat = connection.createStatement();
-            String query = "SELECT * FROM " + dbname + " ;";
+            String query = "SELECT * FROM " + dbName + " ;";
 
 
             ResultSet res = stat.executeQuery(query);
@@ -267,16 +267,16 @@ class DatabaseHelper {
         return orderList;
     }
 
-    static ArrayList<String> getOrderOnID(String id, String dbname) {
+    static ArrayList<String> getOrderOnID(String id, String dbName) {
         Connection connection;
         ArrayList<String> result = new ArrayList<>();
         Statement stat;
         try {
             Class.forName("org.sqlite.JDBC");
-            connection = DriverManager.getConnection("jdbc:sqlite:" + dbname + ".db");
+            connection = DriverManager.getConnection("jdbc:sqlite:" + dbName + ".db");
 
             stat = connection.createStatement();
-            String query = "SELECT * FROM " + dbname + " WHERE ID = '" + id + "';";
+            String query = "SELECT * FROM " + dbName + " WHERE ID = '" + id + "';";
 
             ResultSet res = stat.executeQuery(query);
             result.add(res.getString("ID"));
@@ -293,17 +293,38 @@ class DatabaseHelper {
         return result;
     }
 
-    static void setOrderSend(String dbname, String identify) {
+    static void deleteContact(String dbName, String id) {
         Connection connection;
         Statement stat;
         try {
             Class.forName("org.sqlite.JDBC");
-            connection = DriverManager.getConnection("jdbc:sqlite:" + dbname + ".db");
+            connection = DriverManager.getConnection("jdbc:sqlite:" + dbName + ".db");
 
             stat = connection.createStatement();
-            String query = "UPDATE " + dbname + " SET SEND = 1 WHERE ID = '" + identify + "';";
+            String query = "DELETE FROM  " + dbName + " WHERE ID = '" + id + "';";
 
             stat.executeUpdate(query);
+            stat.close();
+            connection.close();
+            System.out.println("ORDER: \n" + query + "\n done.");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    static void setOrderSend(String dbName, String identify) {
+        Connection connection;
+        Statement stat;
+        try {
+            Class.forName("org.sqlite.JDBC");
+            connection = DriverManager.getConnection("jdbc:sqlite:" + dbName + ".db");
+
+            stat = connection.createStatement();
+            String query = "UPDATE " + dbName + " SET SEND = 1 WHERE ID = '" + identify + "';";
+
+            stat.executeUpdate(query);
+            stat.close();
             connection.close();
             System.out.println("ORDER: \n" + query + "\n done.");
         } catch (Exception e) {

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
+<?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <GridPane xmlns:fx="http://javafx.com/fxml/1" alignment="BOTTOM_LEFT" maxHeight="-Infinity" maxWidth="-Infinity"
@@ -81,5 +81,11 @@
       <ListView fx:id="list_view_contacts" onMouseClicked="#pickContact" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="3" GridPane.rowIndex="1" />
       <Button fx:id="buttonAddContact" mnemonicParsing="false" onAction="#buttonAddAction" text="Add contact"
               GridPane.columnIndex="3" GridPane.rowIndex="2"/>
+      <CheckBox fx:id="checkBoxDelete" mnemonicParsing="false" text="Delete" GridPane.columnIndex="3"
+                GridPane.rowIndex="2">
+         <GridPane.margin>
+            <Insets left="90.0"/>
+         </GridPane.margin>
+      </CheckBox>
    </children>
 </GridPane>

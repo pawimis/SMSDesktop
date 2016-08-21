@@ -4,7 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <GridPane xmlns:fx="http://javafx.com/fxml/1" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
-          minWidth="-Infinity" prefHeight="200.0" prefWidth="300.0" xmlns="http://javafx.com/javafx/8"
+          minWidth="-Infinity" prefHeight="200.0" prefWidth="300.0" xmlns="http://javafx.com/javafx/8.0.101"
           fx:controller="sample.ContactController">
   <columnConstraints>
     <ColumnConstraints hgrow="SOMETIMES" maxWidth="284.0" minWidth="10.0" prefWidth="100.0" />
@@ -28,7 +28,22 @@
             <Insets left="10.0" />
          </GridPane.margin>
       </Label>
-       <Button fx:id="button_add" mnemonicParsing="false" onAction="#buttonAddAction" text="Add"
-               GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+       <Button fx:id="buttonAdd" mnemonicParsing="false" onAction="#buttonAddAction" text="Add" GridPane.columnIndex="1"
+               GridPane.rowIndex="2"/>
+       <VBox prefHeight="200.0" prefWidth="100.0" GridPane.rowIndex="2">
+           <children>
+               <Label fx:id="labelInsertPrompt"/>
+               <Label fx:id="labelNamePrompt">
+                   <padding>
+                       <Insets left="10.0"/>
+                   </padding>
+               </Label>
+               <Label fx:id="labelNumberPrompt">
+                   <padding>
+                       <Insets left="10.0"/>
+                   </padding>
+               </Label>
+           </children>
+       </VBox>
    </children>
 </GridPane>

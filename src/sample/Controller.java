@@ -52,6 +52,8 @@ public class Controller implements Initializable {
     private Button buttonAddContact;
     @FXML
     private ListView<String> list_view_contacts;
+    @FXML
+    private CheckBox checkBoxDelete;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
@@ -74,10 +76,15 @@ public class Controller implements Initializable {
                 datePicker.setDisable(confirm);
                 textFieldHour.setDisable(confirm);
             });
+            checkBoxDelete.setOnAction(event -> {
+                if (checkBoxDelete.isSelected())
+                    popupWarning("Choose contact to delete");
+            });
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
 
     @FXML
     public void pickContact(MouseEvent e) throws IOException {
@@ -90,14 +97,32 @@ public class Controller implements Initializable {
     }
 
     private void listViewContactSelected() {
-        String item = list_view_contacts.getSelectionModel().getSelectedItem();
-        System.out.println(item);
-        char c = item.charAt(0);
-        System.out.println(c);
-        item = DatabaseHelper.getContactNumber(Variables.CONTACTSDB, c);
-        System.out.println(item);
-        textFieldNumber.clear();
-        textFieldNumber.setText(item);
+        String item;
+        String c = "";
+        int i = 0;
+        if (checkBoxDelete.isSelected()) {
+            item = list_view_contacts.getSelectionModel().getSelectedItem();
+            while (Variables.isInteger(Character.toString(item.charAt(i)))) {
+                c += Character.toString(item.charAt(i));
+                i++;
+            }
+            DatabaseHelper.deleteContact(Variables.CONTACTSDB, c);
+            setContactList();
+
+        } else {
+            item = list_view_contacts.getSelectionModel().getSelectedItem();
+            System.out.println(item);
+            while (Variables.isInteger(Character.toString(item.charAt(i)))) {
+                c += Character.toString(item.charAt(i));
+                i++;
+            }
+            System.out.println(c);
+            item = DatabaseHelper.getContactNumber(Variables.CONTACTSDB, c);
+            System.out.println(item);
+            textFieldNumber.clear();
+            textFieldNumber.setText(item);
+        }
+
 
     }
 
