@@ -4,7 +4,7 @@ import java.sql.*;
 import java.util.ArrayList;
 
 class DatabaseHelper {
-    public static Connection connect(String dbname) {
+    static Connection connect(String dbname) {
         Connection connection = null;
         try {
             Class.forName("org.sqlite.JDBC");
@@ -18,8 +18,8 @@ class DatabaseHelper {
         return connection;
     }
 
-    public static void createTableOrder(Connection connection, String table) {
-        Statement stat = null;
+    static void createTableOrder(Connection connection, String table) {
+        Statement stat;
         try {
             stat = connection.createStatement();
             String sqlTable = "CREATE TABLE IF NOT EXISTS " + table
@@ -40,8 +40,8 @@ class DatabaseHelper {
         }
     }
 
-    public static void createTableUser(Connection connection, String table) {
-        Statement stat = null;
+    static void createTableUser(Connection connection, String table) {
+        Statement stat;
         try {
             stat = connection.createStatement();
             String sqlTable = "CREATE TABLE IF NOT EXISTS " + table
@@ -58,8 +58,9 @@ class DatabaseHelper {
             System.out.println(ex.getErrorCode());
         }
     }
-    public static void createTableContacts(Connection connection , String table){
-        Statement stat = null;
+
+    static void createTableContacts(Connection connection, String table) {
+        Statement stat;
         try {
             stat = connection.createStatement();
             String sqlTable = "CREATE TABLE IF NOT EXISTS " + table
@@ -78,7 +79,8 @@ class DatabaseHelper {
             System.out.println(ex.getErrorCode());
         }
     }
-    public static void addDatasContacts(String dbname, String name,String number){
+
+    static void addDataContacts(String dbname, String name, String number) {
         Connection connection = null;
         Statement stat = null;
         try {
@@ -100,9 +102,9 @@ class DatabaseHelper {
         }
     }
 
-    public static String addDatasOrder(String dbname, String date, String number, String text, int send) {
-        Connection connection = null;
-        Statement stat = null;
+    static String addDatasOrder(String dbname, String date, String number, String text, int send) {
+        Connection connection;
+        Statement stat;
         String id = null;
         try {
             Class.forName("org.sqlite.JDBC");
@@ -129,9 +131,9 @@ class DatabaseHelper {
         return id;
     }
 
-    public static void addDatasUser(String dbname, String gcm_id) {
-        Connection connection = null;
-        Statement stat = null;
+    static void addDatasUser(String dbname, String gcm_id) {
+        Connection connection;
+        Statement stat;
         try {
             Class.forName("org.sqlite.JDBC");
             connection = DriverManager.getConnection("jdbc:sqlite:" + dbname + ".db");
@@ -149,11 +151,11 @@ class DatabaseHelper {
         }
     }
 
-    public static ArrayList<String> getAllContacts(String dbname){
-        ArrayList<String> orderList = new ArrayList<String>();
-        Connection connection = null;
-        String result = null;
-        Statement stat = null;
+    static ArrayList<String> getAllContacts(String dbname) {
+        ArrayList<String> orderList = new ArrayList<>();
+        Connection connection;
+        String result;
+        Statement stat;
         try {
             Class.forName("org.sqlite.JDBC");
             connection = DriverManager.getConnection("jdbc:sqlite:" + dbname + ".db");
@@ -180,10 +182,11 @@ class DatabaseHelper {
         }
         return orderList;
     }
-    public static String getContactNumber(String dbname,char identifier){
-        Connection connection = null;
+
+    static String getContactNumber(String dbname, char identifier) {
+        Connection connection;
         String result = null;
-        Statement stat = null;
+        Statement stat;
         try {
             Class.forName("org.sqlite.JDBC");
             connection = DriverManager.getConnection("jdbc:sqlite:" + dbname + ".db");
@@ -205,10 +208,11 @@ class DatabaseHelper {
         }
         return result;
     }
-    public static String getUser(String dbname) {
-        Connection connection = null;
+
+    static String getUser(String dbname) {
+        Connection connection;
         String result = null;
-        Statement stat = null;
+        Statement stat;
         try {
             Class.forName("org.sqlite.JDBC");
             connection = DriverManager.getConnection("jdbc:sqlite:" + dbname + ".db");
@@ -228,11 +232,11 @@ class DatabaseHelper {
         return result;
     }
 
-    public static ArrayList<String> getAllOrders(String dbname) {
-        ArrayList<String> orderList = new ArrayList<String>();
-        Connection connection = null;
-        String result = null;
-        Statement stat = null;
+    static ArrayList<String> getAllOrders(String dbname) {
+        ArrayList<String> orderList = new ArrayList<>();
+        Connection connection;
+        String result;
+        Statement stat;
         try {
             Class.forName("org.sqlite.JDBC");
             connection = DriverManager.getConnection("jdbc:sqlite:" + dbname + ".db");
@@ -263,10 +267,10 @@ class DatabaseHelper {
         return orderList;
     }
 
-    public static ArrayList<String> getOrderOnID(String id, String dbname) {
-        Connection connection = null;
-        ArrayList<String> result = new ArrayList<String>();
-        Statement stat = null;
+    static ArrayList<String> getOrderOnID(String id, String dbname) {
+        Connection connection;
+        ArrayList<String> result = new ArrayList<>();
+        Statement stat;
         try {
             Class.forName("org.sqlite.JDBC");
             connection = DriverManager.getConnection("jdbc:sqlite:" + dbname + ".db");
@@ -288,9 +292,10 @@ class DatabaseHelper {
         }
         return result;
     }
-    public static void setOrderSend(String dbname,String identify) {
-        Connection connection = null;
-        Statement stat = null;
+
+    static void setOrderSend(String dbname, String identify) {
+        Connection connection;
+        Statement stat;
         try {
             Class.forName("org.sqlite.JDBC");
             connection = DriverManager.getConnection("jdbc:sqlite:" + dbname + ".db");

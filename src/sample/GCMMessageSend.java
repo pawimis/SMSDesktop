@@ -7,9 +7,9 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-public class GCMMessageSend {
+class GCMMessageSend {
 
-    public static void SendMessage(String messageText, String number, String clientGCM) {
+    static void SendMessage(String messageText, String number, String clientGCM) {
         try {
             System.out.print("attempt to send");
             JSONObject jsonObject = new JSONObject();
@@ -35,7 +35,7 @@ public class GCMMessageSend {
                 BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
                 String inp;
                 String output = "";
-                while ((inp = bufferedReader.readLine().toString()) != null)
+                while ((inp = bufferedReader.readLine()) != null)
                     output = inp;
 
                 if (!output.isEmpty())
@@ -47,10 +47,8 @@ public class GCMMessageSend {
                 ex.printStackTrace();
             }
 
-        } catch (IOException ex) {
+        } catch (IOException | JSONException ex) {
             ex.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
         }
     }
 }

@@ -13,64 +13,50 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.URL;
-import java.net.UnknownHostException;
 import java.sql.Connection;
 import java.text.SimpleDateFormat;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class Controller implements Initializable {
-    private String portNumber;
-    private String phoneNumber;
-    private String messageText;
-    private String fullDate;
-    private String currentDate;
-
-    private static final SimpleDateFormat HOUR_FORMAT = new SimpleDateFormat("HH:mm");
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
     private static final SimpleDateFormat FULLDATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm");
-
-    Timer timer;
-
-    Server server;
-    Stage childStage;
-    ContactController controller;
-    Parent root;
-
-    int info_list_item_mumber = 0;
+    private Server server;
+    private Stage childStage;
+    private ContactController controller;
+    private int infoListItemMumber = 0;
+    private String currentDate;
     @FXML
-    private Button button_connect;
+    private Button buttonConnect;
     @FXML
-    private Button button_send;
+    private Button buttonSend;
     @FXML
     private RadioButton RadioButtonSendNow;
     @FXML
-    private TextField textField_hour;
+    private TextField textFieldHour;
     @FXML
-    private TextField textField_number;
+    private TextField textFieldNumber;
     @FXML
-    private TextField textField_portNumber;
+    private TextField textFieldPortNumber;
     @FXML
-    private DatePicker datepicker;
+    private DatePicker datePicker;
     @FXML
-    private TextArea textArea_Message;
+    private TextArea textAreaMessage;
     @FXML
-    private ListView<String> listView_status;
+    private ListView<String> listViewStatus;
     @FXML
     private ListView<String> listView_info;
     @FXML
     private Label label_ipAddress;
     @FXML
-    private Button button_add_contact;
+    private Button buttonAddContact;
     @FXML
     private ListView<String> list_view_contacts;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         try {
-            label_ipAddress.setText(InetAddress.getLocalHost().getHostAddress());
+            label_ipAddress.setText(Variables.getCurrentIp());
             updateDate();
             System.out.println(currentDate);
             Connection userCon = DatabaseHelper.connect(Variables.USERDB);
@@ -81,31 +67,37 @@ public class Controller implements Initializable {
             DatabaseHelper.createTableOrder(orderCon, Variables.ORDERDB);
             statusSetText();
             setContactList();
-        } catch (UnknownHostException e) {
+            RadioButtonSendNow.setOnAction(event -> {
+                Boolean confirm = false;
+                confirm = RadioButtonSendNow.isSelected();
+
+                datePicker.setDisable(confirm);
+                textFieldHour.setDisable(confirm);
+            });
+        } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     @FXML
     public void pickContact(MouseEvent e) throws IOException {
-        listViewContacSelected();
+        listViewContactSelected();
     }
 
     private void updateDate() {
         Calendar now = Calendar.getInstance();
-        currentDate = FULLDATE_FORMAT.format(now.getTime()).toString();
+        currentDate = FULLDATE_FORMAT.format(now.getTime());
     }
 
-    public void listViewContacSelected() {
-        String item = list_view_contacts.getSelectionModel().getSelectedItem().toString();
+    private void listViewContactSelected() {
+        String item = list_view_contacts.getSelectionModel().getSelectedItem();
         System.out.println(item);
         char c = item.charAt(0);
         System.out.println(c);
         item = DatabaseHelper.getContactNumber(Variables.CONTACTSDB, c);
         System.out.println(item);
-        textField_number.clear();
-        textField_number.setText(item);
+        textFieldNumber.clear();
+        textFieldNumber.setText(item);
 
     }
 
@@ -114,7 +106,7 @@ public class Controller implements Initializable {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("new_contact.fxml"));
             loader.setController(controller);
             loader.setRoot(controller);
-            root = loader.load();
+            Parent root = loader.load();
             childStage = new Stage();
             childStage.setScene(new Scene(root));
             childStage.show();
@@ -130,16 +122,16 @@ public class Controller implements Initializable {
         });
     }
 
-    public void button_send_action() {
+    public void buttonSendAction() {
         String date = null;
         String hour_mins_str = null;
-        phoneNumber = textField_number.getText().toString();
-        messageText = textArea_Message.getText().toString();
+        String phoneNumber = textFieldNumber.getText();
+        String messageText = textAreaMessage.getText();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        if (datepicker.getValue() != null && textField_hour.getText() != null) {
-            hour_mins_str = textField_hour.getText().toString();
-            date = datepicker.getValue().format(formatter);
-            //date = DATE_FORMAT.format(datepicker.getValue()).toString();
+        String fullDate;
+        if (datePicker.getValue() != null && textFieldHour.getText() != null) {
+            hour_mins_str = textFieldHour.getText();
+            date = datePicker.getValue().format(formatter);
             fullDate = date + " " + hour_mins_str;
         } else {
             updateDate();
@@ -159,9 +151,9 @@ public class Controller implements Initializable {
                     statusSetText();
                 } else if (!hour_mins_str.isEmpty() && !date.isEmpty()) {
                     String id = DatabaseHelper.addDatasOrder(Variables.ORDERDB, fullDate, phoneNumber, messageText, 0);
-                    timer = new Timer();
+                    Timer timer = new Timer();
                     try {
-                        timer.schedule(new Scheduler(id, listView_status), FULLDATE_FORMAT.parse(fullDate));
+                        timer.schedule(new Scheduler(id, listViewStatus), FULLDATE_FORMAT.parse(fullDate));
 
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -173,16 +165,19 @@ public class Controller implements Initializable {
                 popupWarning("Message cannot be empty");
         } else
             popupWarning("Give phone number");
+
+        datePicker.setDisable(false);
+        textFieldHour.setDisable(false);
     }
 
-    public void button_connect_action() {
-        portNumber = textField_portNumber.getText().toString();
+    public void buttonConnectAction() {
+        String portNumber = textFieldPortNumber.getText();
         if (!portNumber.isEmpty()) {
             if (Variables.isInteger(portNumber)) {
                 if (Variables.isRange(portNumber)) {
                     infoSetText("Connecting...");
                     System.out.println("S: Connecting...");
-                    button_connect.setDisable(true);
+                    buttonConnect.setDisable(true);
                     server = new Server(portNumber, new Server.OnMessageReceived() {
 
                         @Override
@@ -224,21 +219,21 @@ public class Controller implements Initializable {
     }
 
     private void infoSetText(String message) {
-        listView_info.getItems().add(info_list_item_mumber, message);
-        info_list_item_mumber++;
+        listView_info.getItems().add(infoListItemMumber, message);
+        infoListItemMumber++;
     }
 
     private void statusSetText() {
-        listView_status.getItems().clear();
+        listViewStatus.getItems().clear();
         ArrayList<String> arrayList = DatabaseHelper.getAllOrders(Variables.ORDERDB);
         int i = 0;
         for (String res : arrayList) {
-            listView_status.getItems().add(i, res);
+            listViewStatus.getItems().add(i, res);
             i++;
         }
     }
 
-    public void setContactList() {
+    private void setContactList() {
         list_view_contacts.getItems().clear();
         ArrayList<String> arrayList = DatabaseHelper.getAllContacts(Variables.CONTACTSDB);
         int i = 0;
@@ -267,7 +262,8 @@ public class Controller implements Initializable {
             String text = recQuer.get(1);
             String number = recQuer.get(2);
             System.out.println(id + " " + text + " " + number);
-            //GCMMessageSend.SendMessage(text, number, DatabaseHelper.getUser(Variables.USERDB));
+            DatabaseHelper.setOrderSend(Variables.ORDERDB, id);
+            GCMMessageSend.SendMessage(text, number, DatabaseHelper.getUser(Variables.USERDB));
             DatabaseHelper.setOrderSend(Variables.ORDERDB, id);
             Random rand = new Random();
             int random = rand.nextInt(100);

@@ -9,25 +9,26 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 public class ContactController implements Initializable {
-    Controller controller;
+    private Controller controller;
     @FXML
-    private TextField text_field_name;
+    private TextField textFieldName;
     @FXML
-    private TextField text_field_number;
+    private TextField textFieldNumber;
     @FXML
-    private Button button_add;
+    private Button buttonAdd;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         controller = new Controller();
 
     }
-    public void button_add_action(){
-        String name= text_field_name.getText().toString();
-        String number = text_field_number.getText().toString();
+
+    public void buttonAddAction() {
+        String name = textFieldName.getText();
+        String number = textFieldNumber.getText();
         if(!name.isEmpty() && !number.isEmpty()){
             if(Variables.isInteger(number)){
-                DatabaseHelper.addDatasContacts(Variables.CONTACTSDB,name,number);
+                DatabaseHelper.addDataContacts(Variables.CONTACTSDB, name, number);
             }
         }
     }
